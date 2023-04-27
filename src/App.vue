@@ -7,30 +7,36 @@ export default {
   },
   data() {
     return {
-      size: 10,
       board: Array,
       player: "x",
-      isEnded: false
+      isEnded: false,
+      playCount: localStorage.getItem('playCount') ? parseInt(localStorage.getItem('playCount')) : 1,
+      lines: [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ]
     }
   },
   methods: {
     update_board(coords) {
-      let updatedBoard = [...this.board]
-      console.log(updatedBoard, coords, this.player);
-      // let oneDindex = (coords.row * updatedBoard.length) + coords.column; // Indexes
-      // console.log("oneDindex", oneDindex);
-      updatedBoard[coords.row][coords.column] != " " ? null : updatedBoard[coords.row][coords.column] = this.player
-      this.player == "x" ? this.player = "o" : this.player = "x"
-      return updatedBoard
-    }
-    // calculateBooksMessage() {
-    //   return this.author.books.length > 0 ? 'Yes' : 'No'
-    // }
-    ,
+      while (this.isEnded !== true) {
+        let updatedBoard = [...this.board]
+        // console.log(updatedBoard, coords, this.player);
+        updatedBoard[coords.row][coords.column] != " " ? null : updatedBoard[coords.row][coords.column] = this.player
+        this.player == "x" ? this.player = "o" : this.player = "x"
+        return updatedBoard
+      }
+    },
     fill_board() {
-      this.board = new Array(this.size)
+      this.board = new Array(3)
       for (let i = 0; i < this.board.length; i++) {
-        this.board[i] = new Array(this.size);
+        this.board[i] = new Array(3);
       }
       // Fill board with empty spaces
       for (let i = 0; i < this.board.length; i++) {
@@ -40,11 +46,41 @@ export default {
         }
       }
     },
+    calculateWinner() {
+      let list = [...this.board].flat() // TOFIX: flat array
+      console.log(list);
+      // Win check for rows and columns
+      for (let i = 0; i < 3; i++) {
+        if (list[0 + i * 3] === this.player
+          && list[1 + i * 3] === this.player
+          && list[2 + i * 3] === this.player
+          ||
+          list[0 + i] === this.player
+          && list[3 + i] === this.player
+          && list[6 + i] === this.player) {
+          console.log("row and colums");
+          this.isEnded = true;
+        }
+      }
+      // Win check for diagonals
+      if (list[0] === this.player
+        && list[4] === this.player
+        && list[8] === this.player
+        ||
+        list[2] === this.player
+        && list[4] === this.player
+        && list[6] === this.player
+      ) {
+        console.log("diagonals");
+        this.isEnded = true;
+      }
+    },
   },
   mounted() {
     this.fill_board()
   },
   watch() {
+    this.calculateWinner()
     this.update_board()
   }
 }
@@ -59,8 +95,8 @@ export default {
   </header>
   <div class="container">
     <Board :update_board="update_board" :board="board" />
-</div>
-
+  </div>
+  <div>Game over: {{ isEnded }}</div>
 </template>
 
 <style scoped>
@@ -70,7 +106,7 @@ header {
 }
 
 .container {
-  display: flex; 
+  display: flex;
 }
 
 .logo {
@@ -128,4 +164,5 @@ nav a:first-of-type {
     padding: 1rem 0;
     margin-top: 1rem;
   }
-}</style>
+}
+</style>
