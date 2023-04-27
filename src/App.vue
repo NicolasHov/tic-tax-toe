@@ -8,33 +8,44 @@ export default {
   data() {
     return {
       size: 10,
-      player: ""
+      board: Array,
+      player: "x",
+      isEnded: false
     }
   },
   methods: {
-    create_board() {
-      const board = new Array(this.size);
-      for (let i = 0; i < board.length; i++) {
-        board[i] = new Array(this.size);
+    update_board(coords) {
+      let updatedBoard = [...this.board]
+      console.log(updatedBoard, coords, this.player);
+      // let oneDindex = (coords.row * updatedBoard.length) + coords.column; // Indexes
+      // console.log("oneDindex", oneDindex);
+      updatedBoard[coords.row][coords.column] != " " ? null : updatedBoard[coords.row][coords.column] = this.player
+      this.player == "x" ? this.player = "o" : this.player = "x"
+      return updatedBoard
+    }
+    // calculateBooksMessage() {
+    //   return this.author.books.length > 0 ? 'Yes' : 'No'
+    // }
+    ,
+    fill_board() {
+      this.board = new Array(this.size)
+      for (let i = 0; i < this.board.length; i++) {
+        this.board[i] = new Array(this.size);
       }
       // Fill board with empty spaces
-      for (let i = 0; i < board.length; i++) {
-        for (let j = 0; j < board[i].length; j++) {
-          board[i][j] = " "
+      for (let i = 0; i < this.board.length; i++) {
+        for (let j = 0; j < this.board[i].length; j++) {
+          this.board[i][j] = " "
           // { value:Math.floor(Math.random()*5)+1 }
         }
       }
-      return board
     },
-    update_board(board, coords) {
-      console.log(board, coords);
-      board[coords.row][coords.column] != " " ? null : board[coords.row][coords.column] = this.player
-      this.player == "x" ? this.player = "o" : this.player = "x"
-      return board
-    }
   },
-  onMounted: {
-    // lets see after
+  mounted() {
+    this.fill_board()
+  },
+  watch() {
+    this.update_board()
   }
 }
 
@@ -43,15 +54,23 @@ export default {
 <template>
   <header>
     <div class="wrapper">
+      <div>next player: {{ player }}</div>
     </div>
   </header>
-  <Board :items="create_board()" :update_board="update_board" :player="player" />
+  <div class="container">
+    <Board :update_board="update_board" :board="board" />
+</div>
+
 </template>
 
 <style scoped>
 header {
   line-height: 1.5;
   max-height: 100vh;
+}
+
+.container {
+  display: flex; 
 }
 
 .logo {
@@ -109,5 +128,4 @@ nav a:first-of-type {
     padding: 1rem 0;
     margin-top: 1rem;
   }
-}
-</style>
+}</style>

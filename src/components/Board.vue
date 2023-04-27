@@ -1,16 +1,17 @@
 <script>
 export default {
-  props: ['items', 'player', 'update_board']
+  props: ['board', 'update_board']
 }
 </script>
 
 <template>
-  <div v-for="(item, index1) in items">
-    <button class="cell" v-for="(childItem, index2) in item"
-      @click="update_board(items, { row: index1, column: index2 })" :key="index1 + index2">
-      <!-- <span v-if="childItem.value == 'o'" id="green">{{ player }}</span> -->
-      {{ player }}
-    </button>
+   <div v-for="(row, x) in board">
+      <div v-for="(cell, y) in row" 
+      @click="update_board({ row: x, column: y })"
+      :key="x + y"
+      class="cell">
+      {{ cell == 'x' ? 'X' : cell == 'o' ? 'O' : '' }}
+    </div>
   </div>
 </template>
 
@@ -28,9 +29,12 @@ h3 {
 }
 
 .cell {
-  /* text-align: center; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 2rem;
   width: 2rem;
+  border: 1px solid grey;
   background-color: rgb(192, 191, 191);
   color: red;
   font-size: large;
