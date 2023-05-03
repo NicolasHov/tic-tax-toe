@@ -7,34 +7,24 @@ export default {
   },
   data() {
     return {
-      board: Array,
+      board: new Array(3),
       player: "x",
-      isEnded: false,
       playCount: localStorage.getItem('playCount') ? parseInt(localStorage.getItem('playCount')) : 1,
-      lines: [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-      ]
     }
   },
   methods: {
     update_board(coords) {
-      while (this.isEnded !== true) {
-        let updatedBoard = [...this.board]
-        // console.log(updatedBoard, coords, this.player);
-        updatedBoard[coords.row][coords.column] != " " ? null : updatedBoard[coords.row][coords.column] = this.player
-        this.player == "x" ? this.player = "o" : this.player = "x"
-        return updatedBoard
-      }
+      // if (this.isEnded() == true) {
+      let updatedBoard = [...this.board]
+      console.log(updatedBoard, coords, this.player); // debug
+      updatedBoard[coords.row][coords.column] != " " ? null : updatedBoard[coords.row][coords.column] = this.player
+      this.player == "x" ? this.player = "o" : this.player = "x"
+      // return updatedBoard
+      // }
+      // return
     },
     fill_board() {
-      this.board = new Array(3)
+      // this.board = new Array(3)
       for (let i = 0; i < this.board.length; i++) {
         this.board[i] = new Array(3);
       }
@@ -42,46 +32,52 @@ export default {
       for (let i = 0; i < this.board.length; i++) {
         for (let j = 0; j < this.board[i].length; j++) {
           this.board[i][j] = " "
-          // { value:Math.floor(Math.random()*5)+1 }
         }
       }
     },
-    calculateWinner() {
-      let list = [...this.board].flat() // TOFIX: flat array
-      console.log(list);
-      // Win check for rows and columns
+    getWinner(player) {
+      // Horizontal rows
       for (let i = 0; i < 3; i++) {
-        if (list[0 + i * 3] === this.player
-          && list[1 + i * 3] === this.player
-          && list[2 + i * 3] === this.player
-          ||
-          list[0 + i] === this.player
-          && list[3 + i] === this.player
-          && list[6 + i] === this.player) {
-          console.log("row and colums");
-          this.isEnded = true;
+        if (this.board[0][i] === player && this.board[1][i] === player && this.board[2][i] === player) {
+          console.log("row", player);
+          return true;
         }
       }
-      // Win check for diagonals
-      if (list[0] === this.player
-        && list[4] === this.player
-        && list[8] === this.player
-        ||
-        list[2] === this.player
-        && list[4] === this.player
-        && list[6] === this.player
-      ) {
-        console.log("diagonals");
-        this.isEnded = true;
+
+      // Vertical rows
+      for (let i = 0; i < 3; i++) {
+        if (this.board[i][0] === player && this.board[i][1] === player && this.board[i][2] === player) {
+          console.log("column: ", player);
+          return true;
+        }
       }
+      // Diagonals
+      if (this.board[0][0] === player && this.board[1][1] === player && this.board[2][2] === player) {
+        console.log("diagonal", player);
+        return true;
+      }
+      if (this.board[1][0] === player && this.board[1][1] === player && this.board[0][2] === player) {
+        console.log("diagonal", player);
+        return true;
+      }
+      return false;
     },
+    // isEnded() {
+    //   return this.getWinner('x') || this.getWinner('o') // this.getPossibleMoves().length === 0 ||
+    // }
   },
   mounted() {
     this.fill_board()
+    // this.getWinner(player)
   },
-  watch() {
-    this.calculateWinner()
-    this.update_board()
+  watch: {
+    board: { // deep watcher to listen to array 'board' with 'deep'= true
+        handler() { // TO FIX: add value to listen to ?
+          // console.log("get Winner", this.getWinner('x'));
+      },
+      // immediate: true,
+        deep: true, 
+  }
   }
 }
 
@@ -96,7 +92,9 @@ export default {
   <div class="container">
     <Board :update_board="update_board" :board="board" />
   </div>
-  <div>Game over: {{ isEnded }}</div>
+  <!-- <div v-if="getWinner() === true">
+    <div>Game over</div>
+  </div> -->
 </template>
 
 <style scoped>
@@ -107,6 +105,7 @@ header {
 
 .container {
   display: flex;
+  flex-wrap: wrap;
 }
 
 .logo {
